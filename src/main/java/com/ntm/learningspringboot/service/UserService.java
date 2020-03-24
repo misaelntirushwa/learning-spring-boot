@@ -2,12 +2,15 @@ package com.ntm.learningspringboot.service;
 
 import com.ntm.learningspringboot.dao.UserDao;
 import com.ntm.learningspringboot.model.User;
+import com.ntm.learningspringboot.model.User.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -15,20 +18,41 @@ public class UserService {
     private UserDao userDao;
 
     @Autowired
-    public UserService(UserDao userDao) {
+    public UserService(@Qualifier("postgres") UserDao userDao) {
         this.userDao = userDao;
     }
 
-    List<User> getAllUsers() {
-        return userDao.selectAllUsers();
+    public List<User> getAllUsers(Optional<String> gender) {
+        List<User> users = userDao.selectAllUsers();
+
+        if (!gender.isPresent()) {
+            return users;
+        }
+
+        try {
+            Gender theGender = Gender.valueOf(gender.get().toUpperCase());
+            return users.stream()
+                    .filter(user -> user.getGender().equals(theGender))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new IllegalStateException("Invalid gender", e);
+        }
+
     }
 
-    Optional<User> getUser(UUID userUid) {
-        return userDao.selectUserByUserUid(userUid);
+    public Optional<User> getUser(UUID userUid) {
+
+        Optional<User> userOptional = userDao.selectUserByUserUid(userUid);
+
+        if (userOptional.isPresent()) {
+            return userOptional;
+        }
+
+        return Optional.of(null);
     }
 
-    int updateUser(User user) {
-        Optional<User> optionalUser = getUser(user.getUserUid());
+    public int updateUser(UUID userUid, User user) {
+        Optional<User> optionalUser = getUser(userUid);
 
         if (optionalUser.isPresent()) {
             userDao.updateUser(user);
@@ -38,7 +62,7 @@ public class UserService {
         return -1;
     }
 
-    int removeUser(UUID userUid) {
+    public int removeUser(UUID userUid) {
         Optional<User> optionalUser = getUser(userUid);
 
         if (optionalUser.isPresent()) {
@@ -49,7 +73,7 @@ public class UserService {
         return -1;
     }
 
-    int insertUser(User user) {
+    public int insertUser(User user) {
         UUID uuid = UUID.randomUUID();
         return userDao.insertUser(uuid, user);
     }

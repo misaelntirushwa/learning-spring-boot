@@ -5,12 +5,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Repository
+@Repository("fakeDao")
 public class FakeDataDao implements UserDao {
 
-    private static Map<UUID, User> database;
+    private Map<UUID, User> database;
 
-    static {
+    public FakeDataDao() {
         database = new HashMap<>();
 
         UUID joeUserUid = UUID.randomUUID();

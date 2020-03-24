@@ -1,22 +1,45 @@
 package com.ntm.learningspringboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     private final UUID userUid;
+
+    @NotNull
     private final String firstName;
+
+    @NotNull
     private final String lastName;
+
+    @NotNull
     private final Gender gender;
+
+    @NotNull
+    @Max(value = 112)
+    @Min(value = 0)
     private final Integer age;
+
+    @NotNull
+    @Email
     private final String email;
 
     public User(
-            UUID userUid,
-            String firstName,
-            String lastName,
-            Gender gender,
-            Integer age,
-            String email) {
+            @JsonProperty("userUid") UUID userUid,
+            @JsonProperty("firstName") String firstName,
+            @JsonProperty("lastName") String lastName,
+            @JsonProperty("gender") Gender gender,
+            @JsonProperty("age") Integer age,
+            @JsonProperty("email") String email) {
         this.userUid = userUid;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -25,14 +48,17 @@ public class User {
         this.email = email;
     }
 
+    @JsonProperty("id")
     public UUID getUserUid() {
         return userUid;
     }
 
+    @JsonIgnore
     public String getFirstName() {
         return firstName;
     }
 
+    @JsonIgnore
     public String getLastName() {
         return lastName;
     }
@@ -47,6 +73,14 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    public int getDateOfBirth() {
+        return LocalDate.now().minusYears(age).getYear();
     }
 
     @Override
