@@ -6,16 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Validated
 @RestController
 @RequestMapping("api/v1/users")
 public class UserResource {
@@ -27,15 +24,13 @@ public class UserResource {
         this.userService = userService;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public List<User> fetchUsers(@QueryParam("gender") String gender) {
 
         return userService.getAllUsers(Optional.ofNullable(gender));
     }
 
-    @GetMapping(
-            path = "{userUid}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "{userUid}")
     public ResponseEntity<?> fetchUser(@PathVariable("userUid") UUID userUid) {
         Optional<User> userOptional = userService.getUser(userUid);
         if (userOptional.isPresent()) {
@@ -47,29 +42,22 @@ public class UserResource {
 
     }
 
-    @PostMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> insertNewUser(@Valid @RequestBody User user) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Integer> insertNewUser(@RequestBody User user) {
 
         int result = userService.insertUser(user);
 
         return getIntegerResponseEntity(result);
     }
 
-    @PutMapping(
-            path = "{userUid}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "{userUid}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> updateUser(@PathVariable("userUid") UUID userUid, @RequestBody User user) {
         int result = userService.updateUser(userUid, user);
 
         return getIntegerResponseEntity(result);
     }
 
-    @DeleteMapping(
-            path = "{userUid}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "{userUid}")
     public ResponseEntity<Integer> deleteUser(@PathVariable("userUid") UUID userUid) {
         int result = userService.removeUser(userUid);
 
@@ -83,7 +71,6 @@ public class UserResource {
 
         return ResponseEntity.badRequest().build();
     }
-
     class ErrorMessage {
         String message;
 

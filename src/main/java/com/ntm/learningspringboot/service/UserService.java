@@ -48,7 +48,7 @@ public class UserService {
             return userOptional;
         }
 
-        return Optional.of(null);
+        return null;
     }
 
     public int updateUser(UUID userUid, User user) {
